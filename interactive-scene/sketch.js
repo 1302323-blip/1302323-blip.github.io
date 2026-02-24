@@ -20,12 +20,11 @@ let player1Y;
 let player2X;
 let player2Y;
 
-let ballSpeed = 4;
 let ballX;
 let ballY;
 let ballDX = 5;
 let ballDY = -5;
-let radius = 10
+let radius = 10;
 
 
 
@@ -95,7 +94,7 @@ function playerMovement(){
   }
   
   if (player2Y < 0){
-    player1Y = 0;
+    player2Y = 0;
   }
   if (player2Y > height - paddleHeight){
     player2Y = height - paddleHeight;
@@ -157,12 +156,12 @@ function ballCollide(){ // when ball collides with the paddles
 
 function centerLine(){
   for (let i = 0; i < height/5 + 3; i++){
-    rect(width/2, height/100 * i * 5, width/300, height/40)
+    rect(width/2, height/100 * i * 5, width/300, height/40);
   }
 }
 
 function drawScore(){
-  textSize(fontSize)
-  text(score1, width/2 - (width/30 + fontSize/2 * (String(score1).length)), height/2)
-  text(score2, width/2 + width/30, height/2)
+  textSize(fontSize);
+  text(score1, width/2 - (width/30 + fontSize/2 * (String(score1).length)), height/2);
+  text(score2, width/2 + width/30, height/2);
 }
