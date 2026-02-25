@@ -13,7 +13,7 @@ let fontSize = 30;
 
 let paddleWidth;
 let paddleHeight;
-let paddleSpd = 7;
+let paddleSpd = 10;
 
 let player1X;
 let player1Y;
@@ -25,6 +25,8 @@ let ballY;
 let ballDX = 5;
 let ballDY = -5;
 let radius = 10;
+let ballSpdUpAmount = 0.05;
+let maxBallSpd = 8;
 
 
 
@@ -120,11 +122,15 @@ function ballBounce(){ // when ball colides with walls/ceilings
   // }
   if (ballY > height - radius || ballY < radius){ // bounce off ceiling/floor
     ballDY *= -1;
+    accelerateBall();
   }
   
   if (ballX > width + radius){
     ballX = width/2;
     ballY = height/2;
+    if (ballDY < 0) {
+      ballDY *= -1;
+    }
     score1 += 1;
     console.log("player1 score: " + score1);
     
@@ -132,6 +138,9 @@ function ballBounce(){ // when ball colides with walls/ceilings
   if (ballX < radius){
     ballX = width/2;
     ballY = height/2;
+    if (ballDY < 0) {
+      ballDY *= -1;
+    }
     score2 += 1;
     console.log("player2 score: " + score2);
   }
@@ -139,16 +148,46 @@ function ballBounce(){ // when ball colides with walls/ceilings
 
 function ballCollide(){ // when ball collides with the paddles
   //collide with player 1
-  if (ballX > player1X && ballX < player1X + paddleWidth && 
+  if (ballX > player1X && ballX < player1X + paddleWidth&& 
       ballY > player1Y && ballY < player1Y + paddleHeight){
-    ballX = player1X + paddleWidth;
+    ballX = player1X + paddleWidth*1.5;
     ballDX *= -1;
+    accelerateBall();
   }
   
   else if (ballX > player2X && ballX < player2X + paddleWidth && 
       ballY > player2Y && ballY < player2Y + paddleHeight){
-    ballX = player2X - paddleWidth;
+    ballX = player2X - paddleWidth*1.5;
     ballDX *= -1;
+    accelerateBall();
+  }
+}
+
+function accelerateBall() {
+  if (ballDX < 0) {
+    ballDX -= ballSpdUpAmount;
+  }
+  else if (ballDX > 0){
+    ballDX += ballSpdUpAmount;
+  }
+  if (ballDY < 0) {
+    ballDY -= ballSpdUpAmount;
+  }
+  else if (ballDY > 0) {
+    ballDY += ballSpdUpAmount;
+  }
+
+  if (ballDX > maxBallSpd) {
+    ballDX = maxBallSpd;
+  }
+  else if (ballDX < maxBallSpd * -1) {
+    ballDX = maxBallSpd * -1;
+  }
+  if (ballDY > maxBallSpd) {
+    ballDY = maxBallSpd;
+  }
+  else if (ballDY < maxBallSpd * -1) {
+    ballDY = maxBallSpd * -1;
   }
 }
 
@@ -162,6 +201,6 @@ function centerLine(){
 
 function drawScore(){
   textSize(fontSize);
-  text(score1, width/2 - (width/30 + fontSize/2 * (String(score1).length)), height/2);
+  text(score1, width/2 - (width/30 + fontSize/2 * String(score1).length), height/2);
   text(score2, width/2 + width/30, height/2);
 }
