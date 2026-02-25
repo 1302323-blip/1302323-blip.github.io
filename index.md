@@ -2,7 +2,7 @@
 
 ## Demos
 - [Moving Square](01-first-day)
-- [Interactive Scene - Pong](interactive-scene)
+- [Scope](02-scope)
 
 ## Assignments
-- add assignments here
+- [Interactive Scene - Pong](interactive-scene)
