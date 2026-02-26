@@ -25,8 +25,8 @@ let ballY;
 let ballDX = 5;
 let ballDY = -5;
 let radius = 10;
-let ballSpdUpAmount = 0.05;
-let maxBallSpd = 8;
+let ballSpdUpAmount = 0.2;
+let maxBallSpd = 15;
 
 
 
@@ -117,14 +117,13 @@ function ballMove(){
 }
 
 function ballBounce(){ // when ball colides with walls/ceilings
-  // if (ballX > width - radius || ballX < radius){ // would make it bounce off walls
-  //   ballDX *= -1;
-  // }
+
   if (ballY > height - radius || ballY < radius){ // bounce off ceiling/floor
     ballDY *= -1;
     accelerateBall();
   }
   
+  // score for player 1
   if (ballX > width + radius){
     ballX = width/2;
     ballY = height/2;
@@ -135,6 +134,8 @@ function ballBounce(){ // when ball colides with walls/ceilings
     console.log("player1 score: " + score1);
     
   }
+
+  // score for player 2
   if (ballX < radius){
     ballX = width/2;
     ballY = height/2;
@@ -155,6 +156,7 @@ function ballCollide(){ // when ball collides with the paddles
     accelerateBall();
   }
   
+  // collide with player 2
   else if (ballX > player2X && ballX < player2X + paddleWidth && 
       ballY > player2Y && ballY < player2Y + paddleHeight){
     ballX = player2X - paddleWidth*1.5;
