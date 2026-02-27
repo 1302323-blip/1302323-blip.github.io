@@ -3,17 +3,18 @@
 // Date
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// - entire game is scallable based on window size (though must be reloaded)
+// - added in and uploaded custom font [[[[NOT ACTUALLY DONE YET]]]]
 
-let gameState = ""; // not needed rn
+let gameState = "game"; // game, start, end
 let score1 = 0;
 let score2 = 0;
-let waitTime = 2000;
-let fontSize = 30;
+let scoreFontSize;
+let endScreenFontSize;
 
 let paddleWidth;
 let paddleHeight;
-let paddleSpd = 10;
+let paddleSpd;
 
 let player1X;
 let player1Y;
@@ -22,12 +23,15 @@ let player2Y;
 
 let ballX;
 let ballY;
-let ballDX = 5;
-let ballDY = -5;
-let radius = 10;
-let ballSpdUpAmount = 0.2;
-let maxBallSpd = 15;
+let ballStartingSpd;
+let ballDX;
+let ballDY;
+let radius;
+let ballSpdUpAmount;
+let maxBallSpd;
 
+// temporary variables
+let endScore = 10;
 
 
 function setup() {
@@ -35,14 +39,23 @@ function setup() {
   
   paddleWidth = width/100;
   paddleHeight = height/7;
+  paddleSpd = height/70;
   
   player1X = windowWidth/12;
   player1Y = windowHeight/2 - paddleHeight/2;
   player2X = windowWidth - windowWidth/12;
   player2Y = windowHeight/2 - paddleHeight/2;
   
-  ballX = windowWidth/2;
-  ballY = windowHeight/2;
+  resetBall();
+  ballStartingSpd = sqrt(width * height)/200;
+  maxBallSpd = ballStartingSpd * 3;
+  ballSpdUpAmount = ballStartingSpd / 50;
+  ballDX = ballStartingSpd;
+  ballDY = ballStartingSpd;
+  radius = sqrt(width * height)/100;
+
+  scoreFontSize = sqrt(width * height)/20;
+  endScreenFontSize;
 }
 
 
@@ -50,18 +63,57 @@ function setup() {
 function draw() {
   background(0);
   
+  mainGame();
   displayPlayers();
-  playerMovement();
-  
-  displayBall();
-  ballMove();
-  ballBounce();
-  ballCollide();
-  
-  centerLine();
-  drawScore();
+  timerEndingGame();
+
+  endScreen();
 }
 
+// controls actual gameplay when called
+function mainGame() {
+  if (gameState !== "start"){
+    if (gameState !== "end"){
+      displayBall();
+      playerMovement();
+      ballMove();
+      ballBounce();
+      ballCollide();
+    }
+    
+    centerLine();
+    drawScore();
+  }
+}
+
+// screen that starts the game
+function startScreen() {
+
+}
+
+// should draw box saying who won, and a button that asks if you wanna restart
+function endScreen() {
+  let endScreenWidth = width / 2;
+  let endScreenHeight = height / 4;
+  let endScreenText;
+  let winningScore;
+
+  if (gameState === "end") {
+    // fill("white");
+    // rect(width/2 - endScreenWidth/2, height/2 - endScreenHeight/2, endScreenWidth, endScreenHeight);
+
+    if (score1 > score2){
+      endScreenText = "Player 1 Wins!";
+    }
+    else if (score2 < score1){
+      endScreenText = "Player 2 Wins!";
+    }
+
+    // fill(0);
+    // textSize(scoreFontSize);
+    // text(endScreenText, width/2 - (width/30 + scoreFontSize/2 * endScreenText.length), height/2);
+  }
+}
 
 
 function displayPlayers(){
@@ -125,11 +177,7 @@ function ballBounce(){ // when ball colides with walls/ceilings
   
   // score for player 1
   if (ballX > width + radius){
-    ballX = width/2;
-    ballY = height/2;
-    if (ballDY < 0) {
-      ballDY *= -1;
-    }
+    resetBall();
     score1 += 1;
     console.log("player1 score: " + score1);
     
@@ -137,11 +185,7 @@ function ballBounce(){ // when ball colides with walls/ceilings
 
   // score for player 2
   if (ballX < radius){
-    ballX = width/2;
-    ballY = height/2;
-    if (ballDY < 0) {
-      ballDY *= -1;
-    }
+    resetBall();
     score2 += 1;
     console.log("player2 score: " + score2);
   }
@@ -193,6 +237,15 @@ function accelerateBall() {
   }
 }
 
+function resetBall() {
+  ballX = windowWidth/2;
+  ballY = windowHeight/18;
+
+  if (ballDY < 0) {
+    ballDY *= -1;
+  }
+}
+
 
 
 function centerLine(){
@@ -202,7 +255,13 @@ function centerLine(){
 }
 
 function drawScore(){
-  textSize(fontSize);
-  text(score1, width/2 - (width/30 + fontSize/2 * String(score1).length), height/2);
+  textSize(scoreFontSize);
+  text(score1, width/2 - (width/30 + scoreFontSize/2 * String(score1).length), height/2);
   text(score2, width/2 + width/30, height/2);
+}
+
+function timerEndingGame() {
+  if (score1 === endScore || score2 === endScore) {
+    gameState = "end";
+  }
 }
