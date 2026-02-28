@@ -3,14 +3,14 @@
 // Date
 //
 // Extra for Experts:
-// - entire game is scallable based on window size (though must be reloaded)
+// - entire game is scallable based on window size (though must be reloaded/restarted)
 // - added in and uploaded custom font [[[[NOT ACTUALLY DONE YET]]]]
 
 let gameState = "game"; // game, start, end
 let score1 = 0;
 let score2 = 0;
 let scoreFontSize;
-let endScreenFontSize;
+let restartButtonText = "Click to Replay";
 
 let paddleWidth;
 let paddleHeight;
@@ -31,7 +31,7 @@ let ballSpdUpAmount;
 let maxBallSpd;
 
 // temporary variables
-let endScore = 10;
+let endScore = 12;
 
 
 function setup() {
@@ -55,7 +55,6 @@ function setup() {
   radius = sqrt(width * height)/100;
 
   scoreFontSize = sqrt(width * height)/20;
-  endScreenFontSize;
 }
 
 
@@ -93,25 +92,31 @@ function startScreen() {
 
 // should draw box saying who won, and a button that asks if you wanna restart
 function endScreen() {
-  let endScreenWidth = width / 2;
-  let endScreenHeight = height / 4;
+  let restartButtonWidth = width / 4;
+  let restartButtonHeight = height / 8;
   let endScreenText;
-  let winningScore;
+  // stroke(255);
+  // fill(0);
 
   if (gameState === "end") {
-    // fill("white");
-    // rect(width/2 - endScreenWidth/2, height/2 - endScreenHeight/2, endScreenWidth, endScreenHeight);
+    // rect(width / 2 - endScreenWidth/2, height * (3/4) - endScreenHeight / 2, endScreenWidth, endScreenHeight);
+
+    text(restartButtonText, width / 2 - (scoreFontSize/4.5 * restartButtonText.length), height * (3/4));
 
     if (score1 > score2){
       endScreenText = "Player 1 Wins!";
+      text(endScreenText, width / 4 - (scoreFontSize/4 * endScreenText.length), height / 8);
     }
-    else if (score2 < score1){
+    else if (score2 > score1){
       endScreenText = "Player 2 Wins!";
+      text(endScreenText, width * (3/4) - (scoreFontSize/4 * endScreenText.length), height / 8)
     }
 
-    // fill(0);
-    // textSize(scoreFontSize);
-    // text(endScreenText, width/2 - (width/30 + scoreFontSize/2 * endScreenText.length), height/2);
+    if (mouseX > width/2 - restartButtonWidth && mouseX < width/2 + restartButtonWidth &&
+      mouseY > height * (3/4) - restartButtonHeight/2 && mouseY < height * (3/4) + restartButtonWidth / 8 && mouseIsPressed) {
+        setup();
+        resetGame();
+    }
   }
 }
 
@@ -264,4 +269,10 @@ function timerEndingGame() {
   if (score1 === endScore || score2 === endScore) {
     gameState = "end";
   }
+}
+
+function resetGame(){
+  score1 = 0;
+  score2 = 0;
+  gameState = "game";
 }
