@@ -1,6 +1,6 @@
 // Interactive Scene
 // Steven Qiu
-// Date
+// Date March 2, 2026
 //
 // Extra for Experts:
 // - entire game is scallable based on window size (though must be reloaded/restarted for it to be scalled mid-game)
