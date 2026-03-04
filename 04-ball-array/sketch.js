@@ -7,7 +7,7 @@ function setup() {
 }
 
 function draw() {
-  background(220);
+  background(0);
   noStroke;
 
   for (let ball of ballArray){
@@ -20,23 +20,37 @@ function draw() {
     fill(ball.r, ball.g, ball.b);
     circle(ball.x, ball.y, ball.radius * 2);
 
-    if (ball.x < ball.radius || ball.x > width - ball.radius){
-      ball.dx *= -1;
+    // teleport to other side
+    if (ball.x < -ball.radius){
+      ball.x = width + ball.radius;
     }
-    if (ball.y < ball.radius || ball.y > height - ball.radius){
-      ball.dy *= -1;
+    if (ball.x > width + ball.radius){
+      ball.x = -ball.radius;
     }
+
+    if (ball.y < -ball.radius){
+      ball.y = height + ball.radius;
+    }
+    if (ball.y > height + ball.radius){
+      ball.y = -ball.radius;
+    }
+    // ball.gravity += 1;
+    // if (ball.y < height - ball.radius){
+    //   ball.y = height - ball.radius;
+    //   ball.gravity = 0 - ball.jumpStrength;
+    //   ball.jumpStrength *= 0.9;
+    // }
   }
 }
 
 function mousePressed(){
-  spawnBall();
+  spawnBall(mouseX, mouseY);
 }
 
-function spawnBall(){
+function spawnBall(_x, _y){
   let theBall = {
-    x: random(width),
-    y: random(height),
+    x: _x,
+    y: _y,
     dx: random(-5, 5),
     dy: random (-5, 5),
     radius: random(10, 40),
@@ -44,6 +58,10 @@ function spawnBall(){
     r: random(255),
     g: random(255),
     b: random(255),
+
+    gravity: 0,
+    jumpStrength: (height - _y) / 200,
   };
   ballArray.push(theBall);
 }
+
