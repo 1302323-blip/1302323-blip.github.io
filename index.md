@@ -9,3 +9,4 @@
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
+- [Arrays & Object Notation - Zombie Survival(?)](array-object)
