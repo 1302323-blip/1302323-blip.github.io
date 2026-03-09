@@ -30,6 +30,8 @@ function draw() {
 
   displayPlayer();
   playerMovement();
+
+  bulletBehavior();
 }
 
 // draws player
@@ -60,18 +62,53 @@ function playerMovement(){
   }
 }
 
+// shoot a bullet
+// function shootBullets(){
+//   if (mouseIsPressed)
+// }
 
+function mousePressed(){
+  spawnBullet(playerX, playerY);
+}
+
+// display the bullets
+function bulletBehavior(){
+  for (let bullet of playerBullets){
+    push();
+    translate(playerX, playerY);
+    fill(0);
+    rotate(bullet.angle);
+    rectMode(CENTER);
+    rect(bullet.x, bullet.y, bullet.width, bullet.height);
+    pop();
+    // if (bullet.angle > 0){
+    //   bullet.dx = cos(bullet.angle) * bullet.spd;
+    //   bullet.dy = sin(bullet.angle) * bullet.spd;
+    // }
+    // else if (bullet.angle < 0){
+    //   bullet.dx = cos(bullet.angle) * bullet.spd * -1;
+    //   bullet.dy = sin(bullet.angle) * bullet.spd * -1;
+    // }
+    bullet.dx = cos(bullet.angle) * bullet.spd;
+    bullet.dy = sin(bullet.angle) * bullet.spd;
+
+    bullet.x += bullet.dx;
+    bullet.x += bullet.dy;
+  }
+}
 
 // player bullets
 function spawnBullet(_x, _y){
-  let bullet = {
-    x: _x,
-    y: _y,
+  let theBullet = {
+    x: 0,
+    y: 0,
     dx: 0,
     dy: 0,
     spd: 10,
     angle: atan2(mouseY - _y, mouseX - _x),
-    width: 10,
-    height: 40,
+    width: 12,
+    height: 4,
   };
+  playerBullets.push(theBullet);
+  console.log(theBullet.angle);
 }
