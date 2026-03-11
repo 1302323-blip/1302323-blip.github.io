@@ -12,6 +12,8 @@ let playerHeight = 30;
 const PLAYER_SPD = 5;
 let playerAngle;
 
+let playerHealth = 10;
+
 let playerBullets = [];
 let zombies = [];
 
@@ -42,16 +44,17 @@ class Bullet {
   }
 }
 
+// if you wanted to make different types of zombies, you'd just create a new class of a different zombie type
 class Zombie {
   constructor(){
     this.spd = 2;
     this.y;
     this.x;
     this.size = 30;
+    this.health = 2;
 
-    // custom stuff separate from tutorial
     this.angle = 0;
-    // custom
+    this.colour = color(100, 250, 100);
 
     // sets random position for zombie in borders
     if (random(1) < 0.5){
@@ -67,18 +70,14 @@ class Zombie {
     else {
       this.x = random(width, width * (3/2));
     }
-
-    //this.pos = createVector(this.x, this.y);
-    console.log(this.x, this.y);
   }
 
   draw(){
     push();
-    // custom
     translate(this.x, this.y);
     this.angle = atan2(playerY - this.y, playerX - this.x);
-    // custom
-    fill(100, 255, 100);
+    //fill(100, 255, 100);
+    fill(this.colour);
     rotate(this.angle);
     rectMode(CENTER);
     rect(0, 0, this.size);
@@ -90,6 +89,36 @@ class Zombie {
     this.y += this.spd * sin(this.angle);
   }
 }
+
+// testing extending class
+class fastZombie extends Zombie{
+  constructor() {
+    this.spd = 2;
+    this.y;
+    this.x;
+    this.size = 30;
+    this.health = 2;
+
+    this.angle = 0;
+    this.colour = color(255, 0, 0);
+
+    // sets random position for zombie in borders
+    if (random(1) < 0.5){
+      this.y = random(-height/2, 0);
+    }
+    else {
+      this.y = random(height, height * (3/2));
+    }
+
+    if (random(1) < 0.5){
+      this.x = random(-width/2, 0);
+    }
+    else {
+      this.x = random(width, width * (3/2));
+    }
+  }
+}
+// testing extending class
 
 
 function setup() {
@@ -150,6 +179,19 @@ function playerMovement(){
   if (keyIsDown(68) || keyIsDown(39)){ // right
     playerX += PLAYER_SPD;
   }
+
+  if (playerX < 0){
+    playerX = 0;
+  }
+  if (playerX > width){
+    playerX = width;
+  }
+  if (playerY < 0){
+    playerY = 0;
+  }
+  if (playerY > height){
+    playerY = height;
+  }
 }
 
 
@@ -161,10 +203,35 @@ function mousePressed(){
 
 // display the bullets
 function bulletBehavior(){
-  for (let bullet of playerBullets){
-    bullet.update();
-    bullet.draw();
+  //for (let bullet of playerBullets){
+  for (let i = playerBullets.length - 1; i >= 0; i--){
+    // takes a bullet from a list, which is assigned to a newly created class 'Bullet'
+    // doing this we can call the update() and draw() functions from the class 'Bullet'
+    // bullet.update();
+    // bullet.draw();
+    playerBullets[i].update();
+    playerBullets[i].draw();
+
+    if (bulletOffscreen(playerBullets[i])){
+      playerBullets.splice(i, 1);
+    }
   }
+}
+
+function bulletOffscreen(bullet){
+  if (bullet.x < -bullet.size/2){
+    return true;
+  }
+  if (bullet.x > width + bullet.size/2){
+    return true;
+  }
+  if (bullet.y < -bullet.size/2){
+    return true;
+  }
+  if (bullet.y > height + bullet.size){
+    return true;
+  }
+  return false;
 }
 
 // place bullet class into a list
@@ -174,10 +241,13 @@ function spawnBullet(){
 }
 
 function hasShotZombie(zombieHit){
+  // each 'bullet' class (which is assigned to a variable) will be checked if it hit a zombie gotten from 'zombieHit'
+  // we can get the xy values of each class still using the indexs of each one we get from their for loops
   for (let i = 0; i < playerBullets.length; i++){
     // dist calculates distance from two points
     if (dist(playerBullets[i].x, playerBullets[i].y, zombieHit.x, zombieHit.y) < 25){
       playerBullets.splice(i, 1);
+      // if true, we kill/hit the zombie
       return true;
     }
   }
@@ -189,8 +259,15 @@ function hasShotZombie(zombieHit){
 function spawnZombie(){
   if (frameCount % 60 === 0){
     zombies.push(new Zombie());
-    console.log("created zombie");
   }
+}
+
+function zombieBitPlayer(bitingZombie){
+  if (dist(bitingZombie.x, bitingZombie.y, playerX, playerY) < 15){
+    playerHealth -= 1;
+    return true;
+  }
+  return false;
 }
 
 function zombieBehavior(){
@@ -199,9 +276,19 @@ function zombieBehavior(){
     zombies[i].update();
     zombies[i].draw();
 
+    // each zombie id checks if its hit a bullet using this if function in the for loop
     if (hasShotZombie(zombies[i])){
-      console.log("hit");
+      // gets rid of one zombie in the list
+      // ie. the zombie actually hit by the bullet
+      zombies[i].health -= 1;
+      if (zombies[i].health <= 0){
+        zombies.splice(i, 1);
+      }
+    }
+
+    if (zombieBitPlayer(zombies[i])){
       zombies.splice(i, 1);
     }
   }
 }
+
