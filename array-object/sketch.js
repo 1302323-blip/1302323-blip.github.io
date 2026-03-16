@@ -4,6 +4,9 @@
 //
 // Extra for Experts:
 // - learned about classes
+// - learned how to extend classes
+
+// disclaimer: lots of the comments made are mainly for my own learning
 
 let playerX;
 let playerY;
@@ -12,13 +15,18 @@ let playerHeight = 30;
 const PLAYER_SPD = 5;
 let playerAngle;
 
-let playerHealth = 10;
+const PLAYER_MAX_HEALTH = 10;
+let playerHealth;
 
 let playerBullets = [];
 let zombies = [];
 
+let gameState = "playing"; // playing, end
+let score;
+let scoreTextSize = 50;
 
 
+// the bullets of the player
 class Bullet {
   // constructor seems to only be called one time, when the class is initally created
   // variables are taken from player angle + position (x, y, angle)
@@ -44,6 +52,9 @@ class Bullet {
   }
 }
 
+
+// the zombies + variants
+
 // if you wanted to make different types of zombies, you'd just create a new class of a different zombie type
 class Zombie {
   constructor(){
@@ -52,6 +63,9 @@ class Zombie {
     this.x;
     this.size = 30;
     this.health = 2;
+    this.damage = 1;
+
+    this.givenScore = 15;
 
     this.angle = 0;
     this.colour = color(100, 250, 100);
@@ -90,14 +104,19 @@ class Zombie {
   }
 }
 
-// testing extending class
+// extending classes allows you to create a new entity using the code of another class
+// seems to only use constructor
 class fastZombie extends Zombie{
   constructor() {
-    this.spd = 2;
+    // super() is needed to extend classes
+    super();
+    this.spd = 5;
     this.y;
     this.x;
-    this.size = 30;
-    this.health = 2;
+    this.size = 25;
+    this.health = 1;
+    this.damage = 1;
+    this.givenScore = 25;
 
     this.angle = 0;
     this.colour = color(255, 0, 0);
@@ -118,26 +137,68 @@ class fastZombie extends Zombie{
     }
   }
 }
-// testing extending class
+
+class toughZombie extends Zombie{
+  constructor() {
+    super();
+    this.spd = 1.2;
+    this.y;
+    this.x;
+    this.size = 45;
+    this.health = 10;
+    this.damage = 3;
+    this.givenScore = 100;
+
+    this.angle = 0;
+    this.colour = color(109, 36, 191);
+
+    if (random(1) < 0.5){
+      this.y = random(-height/2, 0);
+    }
+    else {
+      this.y = random(height, height * (3/2));
+    }
+
+    if (random(1) < 0.5){
+      this.x = random(-width/2, 0);
+    }
+    else {
+      this.x = random(width, width * (3/2));
+    }
+  }
+}
 
 
+// setup and draw functions
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  playerX = width/2;
-  playerY = height/2;
+  resetGame();
 }
 
 function draw() {
   background(90);
-
-  displayPlayer();
-  playerMovement();
-
-  bulletBehavior();
-
-  spawnZombie();
+  
   zombieBehavior();
+  displayScore();
+  
+  if (gameState === "playing"){
+
+    displayPlayer();
+    playerMovement();
+
+    bulletBehavior();
+
+    spawnZombie();
+
+    if (playerHealth <= 0){
+      gameState = "end";
+    }
+  }
+
+  if (gameState === "end"){
+    resetGame();
+  }
 }
 
 
@@ -194,9 +255,23 @@ function playerMovement(){
   }
 }
 
+// reset game once gameState = "end"
+function resetGame(){
+  playerX = width/2;
+  playerY = height/2;
+  playerHealth = PLAYER_MAX_HEALTH;
+  gameState = "playing";
+
+  zombies.splice(0, zombies.length);
+  playerBullets.splice(0, playerBullets.length);
+  frameCount = 0;
+
+  score = 0;
+}
 
 
-// shoot a bullet
+
+// shoot a bullet when mouse is pressed
 function mousePressed(){
   spawnBullet();
 }
@@ -218,6 +293,7 @@ function bulletBehavior(){
   }
 }
 
+// deletes bullets when they're offscrean
 function bulletOffscreen(bullet){
   if (bullet.x < -bullet.size/2){
     return true;
@@ -240,12 +316,14 @@ function spawnBullet(){
   playerBullets.push(new Bullet(playerX, playerY, playerAngle));
 }
 
+// damage zombies when hit with bullet
+// kills zombie when they run out of health
 function hasShotZombie(zombieHit){
   // each 'bullet' class (which is assigned to a variable) will be checked if it hit a zombie gotten from 'zombieHit'
   // we can get the xy values of each class still using the indexs of each one we get from their for loops
   for (let i = 0; i < playerBullets.length; i++){
     // dist calculates distance from two points
-    if (dist(playerBullets[i].x, playerBullets[i].y, zombieHit.x, zombieHit.y) < 25){
+    if (dist(playerBullets[i].x, playerBullets[i].y, zombieHit.x, zombieHit.y) < zombieHit.size * 0.8){
       playerBullets.splice(i, 1);
       // if true, we kill/hit the zombie
       return true;
@@ -255,25 +333,37 @@ function hasShotZombie(zombieHit){
 }
 
 
-
+// soawns the zombies
+// uses frameCount as timer
 function spawnZombie(){
   if (frameCount % 60 === 0){
     zombies.push(new Zombie());
   }
+  if (frameCount % 180 === 0){
+    zombies.push(new fastZombie());
+  }
+  if (frameCount % 480 === 0){
+    zombies.push(new toughZombie());
+  }
 }
 
+// when zombie damages the player
 function zombieBitPlayer(bitingZombie){
-  if (dist(bitingZombie.x, bitingZombie.y, playerX, playerY) < 15){
-    playerHealth -= 1;
+  if (dist(bitingZombie.x, bitingZombie.y, playerX, playerY) < bitingZombie.size/2){
+    playerHealth -= bitingZombie.damage;
+    console.log(playerHealth);
     return true;
   }
   return false;
 }
 
+// allows zombies to move, display, get damaged, etc.
 function zombieBehavior(){
   // aparentely done in reverse to not mess up indexes
   for (let i = zombies.length - 1; i >= 0; i--){
-    zombies[i].update();
+    if (gameState === "playing"){
+      zombies[i].update();
+    }
     zombies[i].draw();
 
     // each zombie id checks if its hit a bullet using this if function in the for loop
@@ -282,6 +372,7 @@ function zombieBehavior(){
       // ie. the zombie actually hit by the bullet
       zombies[i].health -= 1;
       if (zombies[i].health <= 0){
+        score += zombies[i].givenScore;
         zombies.splice(i, 1);
       }
     }
@@ -292,3 +383,9 @@ function zombieBehavior(){
   }
 }
 
+// displays score
+function displayScore(){
+  textSize(scoreTextSize);
+  fill(0);
+  text(score, width/2 - scoreTextSize/4 * String(score).length, height/2);
+}
