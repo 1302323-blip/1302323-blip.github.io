@@ -15,6 +15,8 @@ let playerHeight = 30;
 const PLAYER_SPD = 5;
 let playerAngle;
 
+let lastTimeShot = 0;
+
 const PLAYER_MAX_HEALTH = 10;
 let playerHealth;
 
@@ -24,6 +26,9 @@ let zombies = [];
 let gameState = "playing"; // playing, end
 let score;
 let scoreTextSize = 50;
+
+let zombieSpawnTime = 180;
+let spawnTimeReduction = 0.5;
 
 
 // the bullets of the player
@@ -187,6 +192,7 @@ function draw() {
     displayPlayer();
     playerMovement();
 
+    shootBullets();
     bulletBehavior();
 
     spawnZombie();
@@ -267,13 +273,21 @@ function resetGame(){
   frameCount = 0;
 
   score = 0;
+
+  console.log(zombies.length);
 }
 
 
 
 // shoot a bullet when mouse is pressed
-function mousePressed(){
-  spawnBullet();
+// experimenting with shooting bullets automatically
+function shootBullets(){
+  const FIRING_TIME = 150;
+
+  if (mouseIsPressed && lastTimeShot < millis()){
+    lastTimeShot = millis() + FIRING_TIME;
+    spawnBullet();
+  }
 }
 
 // display the bullets
@@ -336,14 +350,20 @@ function hasShotZombie(zombieHit){
 // soawns the zombies
 // uses frameCount as timer
 function spawnZombie(){
-  if (frameCount % 60 === 0){
+  if (frameCount % round(zombieSpawnTime) === 1){ //60
     zombies.push(new Zombie());
+    zombieSpawnTime -= spawnTimeReduction;
   }
-  if (frameCount % 180 === 0){
+  if (frameCount % round(zombieSpawnTime) * 6 === 1){ //180
     zombies.push(new fastZombie());
+    zombieSpawnTime -= spawnTimeReduction;
   }
-  if (frameCount % 480 === 0){
+  if (frameCount % round(zombieSpawnTime) * 12 === 1){ //480
     zombies.push(new toughZombie());
+    zombieSpawnTime -= spawnTimeReduction;
+  }
+  if (zombieSpawnTime < 20){
+    zombieSpawnTime = 20;
   }
 }
 
