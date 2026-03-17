@@ -350,15 +350,15 @@ function hasShotZombie(zombieHit){
 // soawns the zombies
 // uses frameCount as timer
 function spawnZombie(){
-  if (frameCount % round(zombieSpawnTime) === 1){ //60
+  if (frameCount % round(zombieSpawnTime) === 0){ //60
     zombies.push(new Zombie());
     zombieSpawnTime -= spawnTimeReduction;
   }
-  if (frameCount % round(zombieSpawnTime) * 6 === 1){ //180
+  if (frameCount % round(zombieSpawnTime) * 6 === 0){ //180
     zombies.push(new fastZombie());
     zombieSpawnTime -= spawnTimeReduction;
   }
-  if (frameCount % round(zombieSpawnTime) * 12 === 1){ //480
+  if (frameCount % round(zombieSpawnTime) * 12 === 0){ //480
     zombies.push(new toughZombie());
     zombieSpawnTime -= spawnTimeReduction;
   }
