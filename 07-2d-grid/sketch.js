@@ -40,3 +40,22 @@ function showGrid(){
     }
   }
 }
+
+function mousePressed(){
+  // for (let y = 0; y < SQUARE_DIMENSION; y++){
+  //   for (let x = 0; x < SQUARE_DIMENSION; x++){
+  //     if (mouseX > x * cellSize && mouseX < (x + 1) * cellSize){
+  //       if (mouseY > y * cellSize && mouseY < (y + 1) * cellSize){
+          
+  //         if (theGrid[y][x] === 1){
+  //           theGrid[y][x] === 0;
+  //         }
+  //         if (theGrid[y][x] === 0){
+  //           theGrid[y][x] === 1;
+  //         }
+
+  //       }
+  //     }
+  //   }
+  // }
+}
