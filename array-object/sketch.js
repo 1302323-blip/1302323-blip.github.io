@@ -18,7 +18,7 @@ let playerAngle;
 
 let lastTimeShot = 0;
 
-const PLAYER_MAX_HEALTH = 10;
+const PLAYER_MAX_HEALTH = 3;
 let playerHealth;
 
 // lists
