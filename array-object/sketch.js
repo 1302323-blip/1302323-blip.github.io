@@ -8,6 +8,7 @@
 
 // disclaimer: lots of the comments made are mainly for my own learning
 
+// player stats
 let playerX;
 let playerY;
 let playerWidth = 30;
@@ -20,15 +21,22 @@ let lastTimeShot = 0;
 const PLAYER_MAX_HEALTH = 10;
 let playerHealth;
 
+// lists
 let playerBullets = [];
 let zombies = [];
 
+// main game stuff
 let gameState = "playing"; // playing, end
 let score;
 let scoreTextSize = 50;
 
-let zombieSpawnTime = 180;
-let spawnTimeReduction = 0.5;
+// zombie spawn times
+// don't really work for some reason with the spawnZombie() function
+
+// let zombieSpawnTime = 180;
+// let fastZombieSpawnTime = zombieSpawnTime * 6;
+// let toughZombieSpawnTime = zombieSpawnTime * 12;
+// let spawnTimeReduction = 0.5;
 
 
 // the bullets of the player
@@ -202,6 +210,7 @@ function draw() {
     }
   }
 
+  // instantly resets game when it ends
   if (gameState === "end"){
     resetGame();
   }
@@ -273,14 +282,13 @@ function resetGame(){
   frameCount = 0;
 
   score = 0;
-
-  console.log(zombies.length);
+  frameCount = 1;
 }
 
 
 
 // shoot a bullet when mouse is pressed
-// experimenting with shooting bullets automatically
+// hold to shoot bullets automatically
 function shootBullets(){
   const FIRING_TIME = 150;
 
@@ -296,8 +304,6 @@ function bulletBehavior(){
   for (let i = playerBullets.length - 1; i >= 0; i--){
     // takes a bullet from a list, which is assigned to a newly created class 'Bullet'
     // doing this we can call the update() and draw() functions from the class 'Bullet'
-    // bullet.update();
-    // bullet.draw();
     playerBullets[i].update();
     playerBullets[i].draw();
 
@@ -324,7 +330,7 @@ function bulletOffscreen(bullet){
   return false;
 }
 
-// place bullet class into a list
+// creates bullets when shot; places bullet class into the list
 // new [Class] creates the class. Variables are for constructor
 function spawnBullet(){
   playerBullets.push(new Bullet(playerX, playerY, playerAngle));
@@ -349,25 +355,53 @@ function hasShotZombie(zombieHit){
 
 // soawns the zombies
 // uses frameCount as timer
+
+// this version of the spawnZombie() function seems to break a lot
+
+// function spawnZombie(){
+//   if (frameCount % round(zombieSpawnTime) === 0){ //60
+//     zombies.push(new Zombie());
+//     zombieSpawnTime -= spawnTimeReduction;
+//   }
+//   if (frameCount % round(fastZombieSpawnTime) === 0){ //180
+//     zombies.push(new fastZombie());
+//     fastZombieSpawnTime -= spawnTimeReduction*2;
+//   }
+//   if (frameCount % round(toughZombieSpawnTime) === 0){ //480
+//     zombies.push(new toughZombie());
+//     toughZombieSpawnTime -= spawnTimeReduction*4;
+//   }
+
+//   if (zombieSpawnTime < 20){
+//     zombieSpawnTime = 20;
+//   }
+//   if (fastZombieSpawnTime < 40){
+//     fastZombieSpawnTime = 40;
+//   }
+//   if (toughZombieSpawnTime < 80){
+//     toughZombieSpawnTime = 80;
+//   }
+// }
+
+// this version of the spawnZombie() function seems to work fine
 function spawnZombie(){
-  if (frameCount % round(zombieSpawnTime) === 0){ //60
+  if (frameCount % 60 === 0){
     zombies.push(new Zombie());
-    zombieSpawnTime -= spawnTimeReduction;
   }
-  if (frameCount % round(zombieSpawnTime) * 6 === 0){ //180
+  if (frameCount % 180 === 0){
     zombies.push(new fastZombie());
-    zombieSpawnTime -= spawnTimeReduction;
   }
-  if (frameCount % round(zombieSpawnTime) * 12 === 0){ //480
+  if (frameCount % 480 === 0){ 
     zombies.push(new toughZombie());
-    zombieSpawnTime -= spawnTimeReduction;
-  }
-  if (zombieSpawnTime < 20){
-    zombieSpawnTime = 20;
   }
 }
 
 // when zombie damages the player
+
+// unsure how to solve error
+// - bitingZombie.x is at times undefined, which causes the code to break, but when the zombie gets shot, not when it bits the player
+// - seems to caused by when I try to speed up the rates the zombies spawn overtime
+// - not sure why
 function zombieBitPlayer(bitingZombie){
   if (dist(bitingZombie.x, bitingZombie.y, playerX, playerY) < bitingZombie.size/2){
     playerHealth -= bitingZombie.damage;
