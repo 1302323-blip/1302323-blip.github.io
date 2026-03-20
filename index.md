@@ -8,6 +8,7 @@
 - [Generative Art](05-generative-art)
 - [Perlin Noise](06-perlin-noise)
 - [2D Grid](07-2d-grid)
+- [Rectangular Grid](08-rect-grid)
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
