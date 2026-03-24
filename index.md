@@ -13,4 +13,5 @@
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
-- [Arrays & Object Notation - Zombie Survival(?)](array-object)
+- [Arrays & Object Notation - Zombie Survival](array-object)
+- [Grid Based Game - PvZ(?)](grid-based-game)
