@@ -22,9 +22,51 @@ const GRID_DIMENSIONS = 8;
 const BLACK_TILE = 1;
 const WHITE_TILE = 0;
 
+// location of pieces
+const EMPTY_SPACE = 0;
+const WHITE_IN_SPACE = 1;
+const WHITE_K_IN_SPACE = 2;
+const BLACK_IN_SPACE = 3;
+const BLACK_K_IN_SPACE = 4;
+
+// rows that turn pieces into kings
+const BLACK_CONVERT_ROW = 7;
+const WHITE_CONVERT_ROW = 0;
+
 let cellSize;
 let grid;
 let pieceGrid; // identical grid that contains the pieces/units
+
+let whitePieces = [];
+let blackPieces = [];
+
+class whitePiece {
+  constructor(_x, _y){
+    this.x;
+    this.y;
+    this.team = white;
+    this.colour = "white";
+    this.size;
+
+    this.isKing = false;
+  }
+
+  draw(){
+    fill(this.colour);
+    rectMode(CENTER);
+    square
+  }
+}
+
+class blackPiece extends whitePiece{
+  constructor(_x, _y){
+    this.x = _x;
+    this.y = _y;
+    this.team = blackPiece;
+
+    this.isKing = false;
+  }
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -59,6 +101,7 @@ function displayGrid(cols, rows){
   }
 }
 
+// generates checkers board (and that's it)
 function generateGrid(cols, rows){
   let newGrid = [];
   let TileWasBlack = true;
@@ -79,12 +122,13 @@ function generateGrid(cols, rows){
   return newGrid;
 }
 
+// initially generates pieces
 function generatePieceGrid(cols, rows){
   let newGrid = [];
   for (let y = 0; y < rows; y++){
     newGrid.push([]);
     for (let x = 0; x < cols; x++){
-      newGrid[y].push(0);
+      newGrid[y].push(EMPTY_SPACE);
     }
   }
   
@@ -92,7 +136,16 @@ function generatePieceGrid(cols, rows){
   for (let y = 0; y <= 2; y++){
     for (let x = 0; x < cols; x++){
       if (grid[y][x] === BLACK_TILE){
-        newGrid[y][x] = 3;
+        newGrid[y][x] = BLACK_IN_SPACE;
+      }
+    }
+  }
+
+  // generate white pieces
+  for (let y = 5; y <= 7; y++){
+    for (let x = 0; x < cols; x++){
+      if (grid[y][x] === BLACK_TILE){
+        newGrid[y][x] = WHITE_IN_SPACE;
       }
     }
   }
