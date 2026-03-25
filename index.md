@@ -10,6 +10,7 @@
 - [2D Grid](07-2d-grid)
 - [Rectangular Grid](08-rect-grid)
 - [Game of Life](09-game-of-life)
+- [Character in Grid](10-character-grid)
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
