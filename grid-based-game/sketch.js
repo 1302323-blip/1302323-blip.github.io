@@ -25,9 +25,9 @@ const WHITE_TILE = 0;
 // location of pieces
 const EMPTY_SPACE = 0;
 const WHITE_IN_SPACE = 1;
-const WHITE_K_IN_SPACE = 2;
-const BLACK_IN_SPACE = 3;
-const BLACK_K_IN_SPACE = 4;
+// const WHITE_K_IN_SPACE = 2;
+const BLACK_IN_SPACE = 2;
+// const BLACK_K_IN_SPACE = 4;
 
 // rows that turn pieces into kings
 const BLACK_CONVERT_ROW = 7;
@@ -37,36 +37,43 @@ let cellSize;
 let grid;
 let pieceGrid; // identical grid that contains the pieces/units
 
-let whitePieces = [];
-let blackPieces = [];
+// let whitePieces = [];
+// let blackPieces = [];
 
-class whitePiece {
-  constructor(_x, _y){
-    this.x;
-    this.y;
-    this.team = white;
-    this.colour = "white";
-    this.size;
+let pieces = [];
+
+class checkerPiece {
+  constructor(_x, _y, teamColour){
+    this.x = _x;
+    this.y = _y;
+    this.team = teamColour; // only black and white teams
+    // this.colour = "white";
+    this.radius = cellSize * 3/4;
 
     this.isKing = false;
+    this.selected = false;
+    this.alive = true;
+
+    this.centerOfCellX = cellSize/2;
+    this.centerOfCellY = cellSize/2;
   }
 
   draw(){
-    fill(this.colour);
-    rectMode(CENTER);
-    square
+    stroke("black");
+    fill(this.team);
+    circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius);
   }
 }
 
-class blackPiece extends whitePiece{
-  constructor(_x, _y){
-    this.x = _x;
-    this.y = _y;
-    this.team = blackPiece;
+// class blackPiece extends whitePiece{
+//   constructor(_x, _y){
+//     this.x = _x;
+//     this.y = _y;
+//     this.team = blackPiece;
 
-    this.isKing = false;
-  }
-}
+//     this.isKing = false;
+//   }
+// }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -78,14 +85,24 @@ function setup() {
   }
 
   grid = generateGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
-  pieceGrid = generatePieceGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
+  generatePieces(GRID_DIMENSIONS, GRID_DIMENSIONS);
 }
 
 function draw() {
   noStroke();
   background(220);
+
   displayGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
+  displayPieces();
+  // for (let i = pieces.length - 1; i >= 0; i--){
+  //   // pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS, pieces[i]);
+
+  //   pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
+  // }
+  pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
 }
+
+
 
 function displayGrid(cols, rows){
   for (let y = 0; y < rows; y++){
@@ -122,51 +139,67 @@ function generateGrid(cols, rows){
   return newGrid;
 }
 
-// initially generates pieces
-function generatePieceGrid(cols, rows){
-  let newGrid = [];
-  for (let y = 0; y < rows; y++){
-    newGrid.push([]);
-    for (let x = 0; x < cols; x++){
-      newGrid[y].push(EMPTY_SPACE);
-    }
+
+
+function displayPieces(){
+  for (let i = pieces.length - 1; i >= 0; i--){
+    pieces[i].draw();
   }
-  
-  // generate black pieces
+}
+
+// initially generates pieces
+function generatePieces(cols, rows){
+  // generates black pieces
   for (let y = 0; y <= 2; y++){
     for (let x = 0; x < cols; x++){
       if (grid[y][x] === BLACK_TILE){
-        newGrid[y][x] = BLACK_IN_SPACE;
+        pieces.push(new checkerPiece(x, y, "black"));
       }
     }
   }
 
-  // generate white pieces
+  // generates white pieces
   for (let y = 5; y <= 7; y++){
     for (let x = 0; x < cols; x++){
       if (grid[y][x] === BLACK_TILE){
-        newGrid[y][x] = WHITE_IN_SPACE;
+        pieces.push(new checkerPiece(x, y, "white"));
       }
+    }
+  }
+}
+
+// tracks where the pieces are on the grid
+
+// bug: it runs the entire thing, but only checks the position of a single piece for some reason
+// that's the theory at least though
+function trackingPiecesOnGrid(cols, rows){
+  let newGrid = [];
+  
+  for (let _y = 0; _y < rows; _y++){
+    newGrid.push([]);
+
+    for (let _x = 0; _x < cols; _x++){
+      // is there a piece in this space
+      for (let piece of pieces){
+        if (_x === piece.x && _y === piece.y){
+          // which piece colour is it?
+          // if (piece.team === "white"){
+          //   newGrid[_y].push(WHITE_IN_SPACE);
+          // }
+          // else if (piece.team === "black"){
+          //   newGrid[_y].push(BLACK_IN_SPACE);
+          // }
+          newGrid[_y].push(1);
+        }
+        else {
+          newGrid[_y].push(EMPTY_SPACE);
+        }
+      }
+        
     }
   }
   return newGrid;
 }
-
-// function generateRandomGrid(cols, rows){
-//   let newGrid = [];
-//   for (let y = 0; y < rows; y++){
-//     newGrid.push([]);
-//     for (let x = 0; x < cols; x++){
-//       if (random(100) < 50){
-//         newGrid[y].push(0);
-//       }
-//       else {
-//         newGrid[y].push(1);
-//       }
-//     }
-//   } 
-//   return newGrid;
-// }
 
 // function mousePressed(){
 //   let x = Math.floor(mouseX/CELL_SIZE);
@@ -188,33 +221,4 @@ function generatePieceGrid(cols, rows){
 //       grid[y][x] = 1;
 //     }
 //   }
-// }
-
-// function keyPressed(){
-//   if (key === "r"){
-//     grid = generateRandomGrid(cols, rows);
-//   }
-
-//   if (key === "e"){
-//     grid = generateEmptyGrid(cols, rows);
-//   }
-
-//   // turns fully black
-//   if (key === "b"){
-//     grid = generateBlackenedGrid(cols, rows);
-//   }
-// }
-
-
-
-// // turn fully black
-// function generateBlackenedGrid(cols, rows){
-//   let newGrid = [];
-//   for (let y = 0; y < rows; y++){
-//     newGrid.push([]);
-//     for (let x = 0; x < cols; x++){
-//       newGrid[y].push(1);
-//     }
-//   } 
-//   return newGrid;
 // }
