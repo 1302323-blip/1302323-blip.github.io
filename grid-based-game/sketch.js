@@ -42,6 +42,10 @@ let pieceGrid; // identical grid that contains the pieces/units
 
 let pieces = [];
 
+// (sort of) state related variables
+let selectedPieceID = null;
+let playerTurn = "white";
+
 class checkerPiece {
   constructor(_x, _y, teamColour){
     this.x = _x;
@@ -180,45 +184,98 @@ function trackingPiecesOnGrid(cols, rows){
 
     for (let _x = 0; _x < cols; _x++){
       // is there a piece in this space
+      newGrid[_y].push(EMPTY_SPACE);
+
       for (let piece of pieces){
         if (_x === piece.x && _y === piece.y){
           // which piece colour is it?
-          // if (piece.team === "white"){
-          //   newGrid[_y].push(WHITE_IN_SPACE);
-          // }
-          // else if (piece.team === "black"){
-          //   newGrid[_y].push(BLACK_IN_SPACE);
-          // }
-          newGrid[_y].push(1);
-        }
-        else {
-          newGrid[_y].push(EMPTY_SPACE);
+          if (piece.team === "white"){
+            newGrid[_y][_x] = WHITE_IN_SPACE;
+          }
+          else if (piece.team === "black"){
+            newGrid[_y][_x] = BLACK_IN_SPACE;
+          }
+          break;
         }
       }
-        
     }
   }
   return newGrid;
 }
 
-// function mousePressed(){
-//   let x = Math.floor(mouseX/CELL_SIZE);
-//   let y = Math.floor(mouseY/CELL_SIZE);
 
-//   toggleCell(x, y);
-//   toggleCell(x - 1, y);
-//   toggleCell(x + 1, y);
-//   toggleCell(x, y - 1);
-//   toggleCell(x, y + 1);
+
+function mousePressed(){
+  let x = Math.floor(mouseX/cellSize);
+  let y = Math.floor(mouseY/cellSize);
+
+  if (selectedPieceID === null){
+    mousePieceCheck(x, y);
+  }
+  else if (selectedPieceID !== null){
+    mouseMovePiece(selectedPieceID);
+  }
+  console.log(selectedPieceID);
+}
+
+// checks if, when the mouse is clicked, a piece is there
+function mousePieceCheck(_x, _y){
+  refreshMousePressCheck();
+
+  if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
+    for (let piece of pieces){
+      if (_x === piece.x && _y === piece.y){
+        selectedPieceID = piece;
+        piece.selected = true;
+      }
+    }
+  }
+}
+
+// experiement
+// function mousePressed(){
+//   let x = Math.floor(mouseX/cellSize);
+//   let y = Math.floor(mouseY/cellSize);
+
+//   for (let i of pieces){
+//     if (selectedPieceID === null){
+//       mousePieceCheck(x, y, i);
+//     }
+//     else if (selectedPieceID !== null){
+//       selectedPieceID = null;
+//     }
+//   }
+//   console.log(selectedPieceID);
 // }
 
-// function toggleCell(x, y){
-//   if (x >= 0 && x < cols && y >= 0 && y < rows){
-//     if (grid[y][x] === 1){
-//       grid[y][x] = 0;
-//     }
-//     else if (grid[y][x] === 0){
-//       grid[y][x] = 1;
+// // checks if, when the mouse is clicked, a piece is there
+// function mousePieceCheck(_x, _y, piece){
+//   refreshMousePressCheck();
+
+//   if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
+//     if (_x === piece.x && _y === piece.y){
+//       selectedPieceID = piece;
+//       piece.selected = true;
 //     }
 //   }
 // }
+
+// allows you to move the piece after clicking it
+// should check for collision as well, and if it can jump over an enemy piece
+function mouseMovePiece(piece){
+  console.log(piece);
+
+  selectedPieceID = null;
+}
+
+
+
+
+// unsure if end up needing this
+// if not just remove all piece.selected instances
+function refreshMousePressCheck(){
+  for (let piece of pieces){
+    piece.selected = false;
+  }
+  selectedPieceID = null;
+}
