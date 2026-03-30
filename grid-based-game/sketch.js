@@ -213,7 +213,7 @@ function mousePressed(){
     mousePieceCheck(x, y);
   }
   else if (selectedPieceID !== null){
-    mouseMovePiece(selectedPieceID);
+    mouseMovePiece(x, y, selectedPieceID);
   }
   console.log(selectedPieceID);
 }
@@ -222,6 +222,7 @@ function mousePressed(){
 function mousePieceCheck(_x, _y){
   refreshMousePressCheck();
 
+  // make sure to check who's turn it is as well
   if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
     for (let piece of pieces){
       if (_x === piece.x && _y === piece.y){
@@ -262,12 +263,66 @@ function mousePieceCheck(_x, _y){
 
 // allows you to move the piece after clicking it
 // should check for collision as well, and if it can jump over an enemy piece
-function mouseMovePiece(piece){
+function mouseMovePiece(_x, _y, piece){
   console.log(piece);
+  let mouseXDistanceFromPiece = _x - piece.x;
+  let mouseYDistanceFromPiece = _y - piece.y;
+  console.log(mouseXDistanceFromPiece);
+  console.log(mouseYDistanceFromPiece);
 
+  // is there location you want to move to on the grid?
+  if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
+    // is there another piece on this square?
+    if (pieceGrid[_y][_x] === EMPTY_SPACE){
+      // is the piece a king?
+      if (piece.isKing){
+        if ((mouseYDistanceFromPiece === 1 || mouseYDistanceFromPiece === -1) && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
+          console.log("movedPiece");
+          console.log(pieceGrid);
+          piece.x = _x;
+          piece.y = _y;
+        }
+      }
+      // if the piece isn't a king
+      else if (!piece.isKing){
+        // if the piece is white
+        if (piece.team === "white"){
+          // move piece normally
+          if (mouseYDistanceFromPiece === -1 && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
+            console.log("movedPiece");
+            console.log(pieceGrid);
+            piece.x = _x;
+            piece.y = _y;
+          }
+          // try to kill black piece?
+          // rn the code is seeing if the piece we're trying to JUMP TO has a piece, not the space where the piece we're trying to JUMP OVER
+          // not entirely sure why this aint working but it isn't and it should be fixed
+          else if (grid[_y + mouseYDistanceFromPiece/2][_x + mouseXDistanceFromPiece/2] === BLACK_IN_SPACE && mouseYDistanceFromPiece === -2 && (mouseXDistanceFromPiece === 2 || mouseXDistanceFromPiece === -2)){
+            console.log("kill piece");
+          }
+        }
+        // if the piece is black
+        else if (piece.team === "black"){
+          if (mouseYDistanceFromPiece === 1 && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
+            console.log("movedPiece");
+            console.log(pieceGrid);
+            piece.x = _x;
+            piece.y = _y;
+          }
+        }
+      }
+    }
+  }
   selectedPieceID = null;
 }
 
+// is on grid?
+// is there a piece on the square you're trying to move?
+// is the piece a king?
+  // can you kill an enemy piece?
+// if the piece isnt a king...
+  // which team?
+  // can you still kill an enemy piece?
 
 
 
