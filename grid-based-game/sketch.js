@@ -31,7 +31,7 @@ const BLACK_IN_SPACE = 2;
 
 // rows that turn pieces into kings
 const BLACK_CONVERT_ROW = 7;
-const WHITE_CONVERT_ROW = 0;
+const WHITE_PROMOTE_ROW = 0;
 
 let cellSize;
 let grid;
@@ -55,7 +55,6 @@ class checkerPiece {
     this.radius = cellSize * 3/4;
 
     this.isKing = false;
-    this.selected = false;
     this.alive = true;
 
     this.centerOfCellX = cellSize/2;
@@ -65,7 +64,26 @@ class checkerPiece {
   draw(){
     stroke("black");
     fill(this.team);
+    // experiment
+    if (isKing){
+      if (this.team === "white"){
+        fill("black");
+        circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius / 2);
+      }
+    }
+    // experiment
     circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius);
+  }
+
+  // being worked on
+  update(){
+    let stayAsKing = false;
+    if (this.team === "white"){
+      if (stayAsKing || this.y === WHITE_PROMOTE_ROW){
+        this.isKing = true;
+        stayAsKing = true;
+      }
+    }
   }
 }
 
@@ -147,6 +165,8 @@ function generateGrid(cols, rows){
 
 function displayPieces(){
   for (let i = pieces.length - 1; i >= 0; i--){
+    // update is being worked on
+    pieces[i].update();
     pieces[i].draw();
   }
 }
@@ -220,46 +240,17 @@ function mousePressed(){
 
 // checks if, when the mouse is clicked, a piece is there
 function mousePieceCheck(_x, _y){
-  refreshMousePressCheck();
+  selectedPieceID = null;
 
   // make sure to check who's turn it is as well
   if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
     for (let piece of pieces){
       if (_x === piece.x && _y === piece.y){
         selectedPieceID = piece;
-        piece.selected = true;
       }
     }
   }
 }
-
-// experiement
-// function mousePressed(){
-//   let x = Math.floor(mouseX/cellSize);
-//   let y = Math.floor(mouseY/cellSize);
-
-//   for (let i of pieces){
-//     if (selectedPieceID === null){
-//       mousePieceCheck(x, y, i);
-//     }
-//     else if (selectedPieceID !== null){
-//       selectedPieceID = null;
-//     }
-//   }
-//   console.log(selectedPieceID);
-// }
-
-// // checks if, when the mouse is clicked, a piece is there
-// function mousePieceCheck(_x, _y, piece){
-//   refreshMousePressCheck();
-
-//   if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
-//     if (_x === piece.x && _y === piece.y){
-//       selectedPieceID = piece;
-//       piece.selected = true;
-//     }
-//   }
-// }
 
 // allows you to move the piece after clicking it
 // should check for collision as well, and if it can jump over an enemy piece
@@ -274,45 +265,54 @@ function mouseMovePiece(_x, _y, piece){
   if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
     // is there another piece on this square?
     if (pieceGrid[_y][_x] === EMPTY_SPACE){
+
       // is the piece a king?
       if (piece.isKing){
         if ((mouseYDistanceFromPiece === 1 || mouseYDistanceFromPiece === -1) && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
-          console.log("movedPiece");
-          console.log(pieceGrid);
           piece.x = _x;
           piece.y = _y;
         }
       }
+
+
+
+
       // if the piece isn't a king
       else if (!piece.isKing){
         // if the piece is white
         if (piece.team === "white"){
           // move piece normally
           if (mouseYDistanceFromPiece === -1 && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
-            console.log("movedPiece");
-            // console.log(pieceGrid);
             piece.x = _x;
             piece.y = _y;
           }
           // try to kill black piece?
           // first detect if there's a black piece in the path
-          else if (pieceGrid[_y + Math.floor(mouseYDistanceFromPiece/2)][_x + Math.floor(mouseYDistanceFromPiece/2)] === BLACK_IN_SPACE){
-            // then check if the move is legal or not
+          else if (pieceGrid[piece.y + Math.floor(mouseYDistanceFromPiece/2)][piece.x + Math.floor(mouseXDistanceFromPiece/2)] === BLACK_IN_SPACE){  
+          // then check if the move is legal or not
             if (mouseYDistanceFromPiece === -2 && (mouseXDistanceFromPiece === 2 || mouseXDistanceFromPiece === -2)){
-              console.log("kill piece");
-              // console.log(pieceGrid);
-              // piece.x = _x;
-              // piece.y = _y;
+              killPiece(piece.x + Math.floor(mouseXDistanceFromPiece/2), piece.y + Math.floor(mouseYDistanceFromPiece/2));
+              piece.x = _x;
+              piece.y = _y;
             }
           }
         }
+
         // if the piece is black
         else if (piece.team === "black"){
           if (mouseYDistanceFromPiece === 1 && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
-            console.log("movedPiece");
-            console.log(pieceGrid);
             piece.x = _x;
             piece.y = _y;
+          }
+          // try to kill white piece?
+          // first detect if there's a white piece in the path
+          else if (pieceGrid[piece.y + Math.floor(mouseYDistanceFromPiece/2)][piece.x + Math.floor(mouseXDistanceFromPiece/2)] === WHITE_IN_SPACE){  
+          // then check if the move is legal or not
+            if (mouseYDistanceFromPiece === 2 && (mouseXDistanceFromPiece === 2 || mouseXDistanceFromPiece === -2)){
+              killPiece(piece.x + Math.floor(mouseXDistanceFromPiece/2), piece.y + Math.floor(mouseYDistanceFromPiece/2));
+              piece.x = _x;
+              piece.y = _y;
+            }
           }
         }
       }
@@ -321,6 +321,16 @@ function mouseMovePiece(_x, _y, piece){
   selectedPieceID = null;
 }
 
+function killPiece(_x, _y){
+  for (let i = pieces.length - 1; i >= 0; i--){
+    if (pieces[i].x === _x && pieces[i].y === _y){
+      console.log(pieces[i]);
+      pieces.splice(i, 1);
+    }
+  }
+}
+
+
 // is on grid?
 // is there a piece on the square you're trying to move?
 // is the piece a king?
@@ -328,14 +338,3 @@ function mouseMovePiece(_x, _y, piece){
 // if the piece isnt a king...
   // which team?
   // can you still kill an enemy piece?
-
-
-
-// unsure if end up needing this
-// if not just remove all piece.selected instances
-function refreshMousePressCheck(){
-  for (let piece of pieces){
-    piece.selected = false;
-  }
-  selectedPieceID = null;
-}
