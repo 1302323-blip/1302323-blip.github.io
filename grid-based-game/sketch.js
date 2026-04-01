@@ -290,15 +290,20 @@ function mouseMovePiece(_x, _y, piece){
           // move piece normally
           if (mouseYDistanceFromPiece === -1 && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
             console.log("movedPiece");
-            console.log(pieceGrid);
+            // console.log(pieceGrid);
             piece.x = _x;
             piece.y = _y;
           }
           // try to kill black piece?
-          // rn the code is seeing if the piece we're trying to JUMP TO has a piece, not the space where the piece we're trying to JUMP OVER
-          // not entirely sure why this aint working but it isn't and it should be fixed
-          else if (grid[_y + mouseYDistanceFromPiece/2][_x + mouseXDistanceFromPiece/2] === BLACK_IN_SPACE && mouseYDistanceFromPiece === -2 && (mouseXDistanceFromPiece === 2 || mouseXDistanceFromPiece === -2)){
-            console.log("kill piece");
+          // first detect if there's a black piece in the path
+          else if (pieceGrid[_y + Math.floor(mouseYDistanceFromPiece/2)][_x + Math.floor(mouseYDistanceFromPiece/2)] === BLACK_IN_SPACE){
+            // then check if the move is legal or not
+            if (mouseYDistanceFromPiece === -2 && (mouseXDistanceFromPiece === 2 || mouseXDistanceFromPiece === -2)){
+              console.log("kill piece");
+              // console.log(pieceGrid);
+              // piece.x = _x;
+              // piece.y = _y;
+            }
           }
         }
         // if the piece is black
