@@ -5,19 +5,13 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-// 0 - empty
-// 1 - pawn
-// 2 - knight
-// 3 - bishop
-// 4 - rook
-// 5 - queen
-// 6 - king
+// final things i want to do to finish up the project
+// - extra for experts (1. sound effects; 2. background music)
+// - chain kills
+// - making it more clear whose turn it is
+// - centre the board
+// - win/lose conditions (also deal with 'draws')
 
-// 0 - empty
-// 1 - white
-// 2 - whiteKing
-// 3 - black
-// 4 - blackKing
 const GRID_DIMENSIONS = 8;
 const BLACK_TILE = 1;
 const WHITE_TILE = 0;
@@ -25,20 +19,15 @@ const WHITE_TILE = 0;
 // location of pieces
 const EMPTY_SPACE = 0;
 const WHITE_IN_SPACE = 1;
-// const WHITE_K_IN_SPACE = 2;
 const BLACK_IN_SPACE = 2;
-// const BLACK_K_IN_SPACE = 4;
 
 // rows that turn pieces into kings
-const BLACK_CONVERT_ROW = 7;
+const BLACK_PROMOTE_ROW = 7;
 const WHITE_PROMOTE_ROW = 0;
 
 let cellSize;
 let grid;
 let pieceGrid; // identical grid that contains the pieces/units
-
-// let whitePieces = [];
-// let blackPieces = [];
 
 let pieces = [];
 
@@ -51,51 +40,50 @@ class checkerPiece {
     this.x = _x;
     this.y = _y;
     this.team = teamColour; // only black and white teams
-    // this.colour = "white";
     this.radius = cellSize * 3/4;
 
     this.isKing = false;
-    this.alive = true;
+    this.stayAsKing = false;
 
     this.centerOfCellX = cellSize/2;
     this.centerOfCellY = cellSize/2;
   }
 
   draw(){
+    let promotedSymbolSize = 2.5;
+
     stroke("black");
     fill(this.team);
-    // experiment
-    if (isKing){
+    circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius);
+    if (this.isKing){
       if (this.team === "white"){
         fill("black");
-        circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius / 2);
+        circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius / promotedSymbolSize);
+      }
+      if (this.team === "black"){
+        fill("white");
+        circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius / promotedSymbolSize);
       }
     }
-    // experiment
-    circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius);
   }
 
-  // being worked on
   update(){
-    let stayAsKing = false;
     if (this.team === "white"){
-      if (stayAsKing || this.y === WHITE_PROMOTE_ROW){
+      if (this.stayAsKing || this.y === WHITE_PROMOTE_ROW){
         this.isKing = true;
-        stayAsKing = true;
+        this.stayAsKing = true;
+      }
+    }
+    if (this.team === "black"){
+      if (this.stayAsKing || this.y === BLACK_PROMOTE_ROW){
+        this.isKing = true;
+        this.stayAsKing = true;
       }
     }
   }
 }
 
-// class blackPiece extends whitePiece{
-//   constructor(_x, _y){
-//     this.x = _x;
-//     this.y = _y;
-//     this.team = blackPiece;
 
-//     this.isKing = false;
-//   }
-// }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -107,7 +95,7 @@ function setup() {
   }
 
   grid = generateGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
-  generatePieces(GRID_DIMENSIONS, GRID_DIMENSIONS);
+  generatePieces();
 }
 
 function draw() {
@@ -116,11 +104,6 @@ function draw() {
 
   displayGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
   displayPieces();
-  // for (let i = pieces.length - 1; i >= 0; i--){
-  //   // pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS, pieces[i]);
-
-  //   pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
-  // }
   pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
 }
 
@@ -165,17 +148,16 @@ function generateGrid(cols, rows){
 
 function displayPieces(){
   for (let i = pieces.length - 1; i >= 0; i--){
-    // update is being worked on
     pieces[i].update();
     pieces[i].draw();
   }
 }
 
 // initially generates pieces
-function generatePieces(cols, rows){
+function generatePieces(){
   // generates black pieces
   for (let y = 0; y <= 2; y++){
-    for (let x = 0; x < cols; x++){
+    for (let x = 0; x < GRID_DIMENSIONS; x++){
       if (grid[y][x] === BLACK_TILE){
         pieces.push(new checkerPiece(x, y, "black"));
       }
@@ -184,7 +166,7 @@ function generatePieces(cols, rows){
 
   // generates white pieces
   for (let y = 5; y <= 7; y++){
-    for (let x = 0; x < cols; x++){
+    for (let x = 0; x < GRID_DIMENSIONS; x++){
       if (grid[y][x] === BLACK_TILE){
         pieces.push(new checkerPiece(x, y, "white"));
       }
@@ -193,9 +175,7 @@ function generatePieces(cols, rows){
 }
 
 // tracks where the pieces are on the grid
-
-// bug: it runs the entire thing, but only checks the position of a single piece for some reason
-// that's the theory at least though
+// used for collision
 function trackingPiecesOnGrid(cols, rows){
   let newGrid = [];
   
@@ -225,6 +205,7 @@ function trackingPiecesOnGrid(cols, rows){
 
 
 
+// allows you to selected a piece to then make it move
 function mousePressed(){
   let x = Math.floor(mouseX/cellSize);
   let y = Math.floor(mouseY/cellSize);
@@ -242,10 +223,10 @@ function mousePressed(){
 function mousePieceCheck(_x, _y){
   selectedPieceID = null;
 
-  // make sure to check who's turn it is as well
   if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
     for (let piece of pieces){
-      if (_x === piece.x && _y === piece.y){
+      // checks if its the turn of piece's team
+      if (_x === piece.x && _y === piece.y && piece.team === playerTurn){
         selectedPieceID = piece;
       }
     }
@@ -253,7 +234,7 @@ function mousePieceCheck(_x, _y){
 }
 
 // allows you to move the piece after clicking it
-// should check for collision as well, and if it can jump over an enemy piece
+// checks for collision (if you can move in that space), and if it can jump over an enemy piece
 function mouseMovePiece(_x, _y, piece){
   console.log(piece);
   let mouseXDistanceFromPiece = _x - piece.x;
@@ -271,6 +252,33 @@ function mouseMovePiece(_x, _y, piece){
         if ((mouseYDistanceFromPiece === 1 || mouseYDistanceFromPiece === -1) && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
           piece.x = _x;
           piece.y = _y;
+          changePlayerTurn();
+        }
+
+        // try to kill a piece
+
+        // team is white; target is black
+        // first detect if there's a black piece in the path
+        else if (pieceGrid[piece.y + Math.floor(mouseYDistanceFromPiece/2)][piece.x + Math.floor(mouseXDistanceFromPiece/2)] === BLACK_IN_SPACE && piece.team === "white"){  
+          // then check if the move is legal or not
+          if ((mouseYDistanceFromPiece === -2 || mouseYDistanceFromPiece === 2) && (mouseXDistanceFromPiece === 2 || mouseXDistanceFromPiece === -2)){
+            killPiece(piece.x + Math.floor(mouseXDistanceFromPiece/2), piece.y + Math.floor(mouseYDistanceFromPiece/2));
+            piece.x = _x;
+            piece.y = _y;
+            changePlayerTurn();
+          }
+        }
+
+        // team is black; target is white
+        // first detect if there's a white piece in the path
+        else if (pieceGrid[piece.y + Math.floor(mouseYDistanceFromPiece/2)][piece.x + Math.floor(mouseXDistanceFromPiece/2)] === WHITE_IN_SPACE && piece.team === "black"){  
+          // then check if the move is legal or not
+          if ((mouseYDistanceFromPiece === -2 || mouseYDistanceFromPiece === 2) && (mouseXDistanceFromPiece === 2 || mouseXDistanceFromPiece === -2)){
+            killPiece(piece.x + Math.floor(mouseXDistanceFromPiece/2), piece.y + Math.floor(mouseYDistanceFromPiece/2));
+            piece.x = _x;
+            piece.y = _y;
+            changePlayerTurn();
+          }
         }
       }
 
@@ -285,6 +293,7 @@ function mouseMovePiece(_x, _y, piece){
           if (mouseYDistanceFromPiece === -1 && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
             piece.x = _x;
             piece.y = _y;
+            changePlayerTurn();
           }
           // try to kill black piece?
           // first detect if there's a black piece in the path
@@ -294,6 +303,7 @@ function mouseMovePiece(_x, _y, piece){
               killPiece(piece.x + Math.floor(mouseXDistanceFromPiece/2), piece.y + Math.floor(mouseYDistanceFromPiece/2));
               piece.x = _x;
               piece.y = _y;
+              changePlayerTurn();
             }
           }
         }
@@ -303,6 +313,7 @@ function mouseMovePiece(_x, _y, piece){
           if (mouseYDistanceFromPiece === 1 && (mouseXDistanceFromPiece === 1 || mouseXDistanceFromPiece === -1)){
             piece.x = _x;
             piece.y = _y;
+            changePlayerTurn();
           }
           // try to kill white piece?
           // first detect if there's a white piece in the path
@@ -312,6 +323,7 @@ function mouseMovePiece(_x, _y, piece){
               killPiece(piece.x + Math.floor(mouseXDistanceFromPiece/2), piece.y + Math.floor(mouseYDistanceFromPiece/2));
               piece.x = _x;
               piece.y = _y;
+              changePlayerTurn();
             }
           }
         }
@@ -330,11 +342,11 @@ function killPiece(_x, _y){
   }
 }
 
-
-// is on grid?
-// is there a piece on the square you're trying to move?
-// is the piece a king?
-  // can you kill an enemy piece?
-// if the piece isnt a king...
-  // which team?
-  // can you still kill an enemy piece?
+function changePlayerTurn(){
+  if (playerTurn === "white"){
+    playerTurn = "black";
+  }
+  else if (playerTurn === "black"){
+    playerTurn = "white";
+  }
+}
