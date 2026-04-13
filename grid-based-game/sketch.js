@@ -6,11 +6,10 @@
 // - describe what you did to take this project "above and beyond"
 
 // final things i want to do to finish up the project
-// - extra for experts (1. sound effects; 2. background music)
-// - chain kills
-// - making it more clear whose turn it is
-// - centre the board
-// - win/lose conditions (also deal with 'draws')
+// - extra for experts (1. sound effects; 2. background music) #2
+// - chain kills #4
+// - making it more clear whose turn it is #5
+// - win/lose conditions (also deal with 'draws') #3
 
 const GRID_DIMENSIONS = 8;
 const BLACK_TILE = 1;
@@ -28,12 +27,28 @@ const WHITE_PROMOTE_ROW = 0;
 let cellSize;
 let grid;
 let pieceGrid; // identical grid that contains the pieces/units
+let gridStartingX;
+let gridStartingY;
 
 let pieces = [];
 
 // (sort of) state related variables
 let selectedPieceID = null;
 let playerTurn = "white";
+
+// sound effects/assets
+let clickPieceSFX;
+let movePieceSFX;
+let promotePieceSFX;
+
+
+
+function preload(){
+  clickPieceSFX = loadSound("SFX/sound_click.wav");
+  promotePieceSFX = loadSound("SFX/Picked Coin Echo.wav");
+}
+
+
 
 class checkerPiece {
   constructor(_x, _y, teamColour){
@@ -54,15 +69,15 @@ class checkerPiece {
 
     stroke("black");
     fill(this.team);
-    circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius);
+    circle(this.x * cellSize + this.centerOfCellX + gridStartingX, this.y * cellSize + this.centerOfCellY + gridStartingY, this.radius);
     if (this.isKing){
       if (this.team === "white"){
         fill("black");
-        circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius / promotedSymbolSize);
+        circle(this.x * cellSize + this.centerOfCellX + gridStartingX, this.y * cellSize + this.centerOfCellY + gridStartingY, this.radius / promotedSymbolSize);
       }
       if (this.team === "black"){
         fill("white");
-        circle(this.x * cellSize + this.centerOfCellX, this.y * cellSize + this.centerOfCellY, this.radius / promotedSymbolSize);
+        circle(this.x * cellSize + this.centerOfCellX + gridStartingX, this.y * cellSize + this.centerOfCellY + gridStartingY, this.radius / promotedSymbolSize);
       }
     }
   }
@@ -94,6 +109,9 @@ function setup() {
     cellSize = height / GRID_DIMENSIONS; 
   }
 
+  gridStartingX = width / 2 - cellSize * (GRID_DIMENSIONS / 2);
+  gridStartingY = height / 2 - cellSize * (GRID_DIMENSIONS / 2);
+
   grid = generateGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
   generatePieces();
 }
@@ -118,7 +136,7 @@ function displayGrid(cols, rows){
       else if (grid[y][x] === BLACK_TILE){
         fill(134, 156, 102);
       }
-      square(x * cellSize, y * cellSize, cellSize);
+      square(x * cellSize + gridStartingX, y * cellSize + gridStartingY, cellSize);
     }
   }
 }
@@ -207,8 +225,8 @@ function trackingPiecesOnGrid(cols, rows){
 
 // allows you to selected a piece to then make it move
 function mousePressed(){
-  let x = Math.floor(mouseX/cellSize);
-  let y = Math.floor(mouseY/cellSize);
+  let x = Math.floor((mouseX - gridStartingX)/cellSize);
+  let y = Math.floor((mouseY - gridStartingY)/cellSize);
 
   if (selectedPieceID === null){
     mousePieceCheck(x, y);
@@ -284,7 +302,6 @@ function mouseMovePiece(_x, _y, piece){
 
 
 
-
       // if the piece isn't a king
       else if (!piece.isKing){
         // if the piece is white
@@ -349,4 +366,5 @@ function changePlayerTurn(){
   else if (playerTurn === "black"){
     playerTurn = "white";
   }
+  clickPieceSFX.play();
 }
