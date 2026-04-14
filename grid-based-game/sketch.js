@@ -36,6 +36,9 @@ let pieces = [];
 let selectedPieceID = null;
 let playerTurn = "white";
 
+let gameState = "playing" // playing, finished
+let winner = null;
+
 // sound effects/assets
 let clickPieceSFX;
 let movePieceSFX;
@@ -84,12 +87,20 @@ class checkerPiece {
 
   update(){
     if (this.team === "white"){
+      if (!this.stayAsKing && this.y === WHITE_PROMOTE_ROW){
+        promotePieceSFX.play();
+      }
       if (this.stayAsKing || this.y === WHITE_PROMOTE_ROW){
         this.isKing = true;
         this.stayAsKing = true;
       }
+      
     }
+
     if (this.team === "black"){
+      if (!this.stayAsKing && this.y === BLACK_PROMOTE_ROW){
+        promotePieceSFX.play();
+      }
       if (this.stayAsKing || this.y === BLACK_PROMOTE_ROW){
         this.isKing = true;
         this.stayAsKing = true;
