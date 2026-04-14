@@ -11,6 +11,7 @@
 - [Rectangular Grid](08-rect-grid)
 - [Game of Life](09-game-of-life)
 - [Character in Grid](10-character-grid)
+- [Walker OOP](12-walker-oop)
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
