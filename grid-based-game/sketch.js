@@ -6,7 +6,6 @@
 // - describe what you did to take this project "above and beyond"
 
 // final things i want to do to finish up the project
-// - extra for experts (1. sound effects; 2. background music) #2
 // - chain kills #4
 // - making it more clear whose turn it is #5
 // - win/lose conditions (also deal with 'draws') #3
@@ -39,16 +38,23 @@ let playerTurn = "white";
 let gameState = "playing"; // playing, finished
 let winner = null;
 
-// sound effects/assets
+// sound effects/music
+// maybe no click piece sfx
 let clickPieceSFX;
 let movePieceSFX;
 let promotePieceSFX;
+let caputurePieceSFX;
+
+let gameMusic;
 
 
 
 function preload(){
-  clickPieceSFX = loadSound("SFX/sound_click.wav");
+  movePieceSFX = loadSound("SFX/sound_click.wav");
+  caputurePieceSFX = loadSound("SFX/qubodup-crash.ogg");
   promotePieceSFX = loadSound("SFX/Picked Coin Echo.wav");
+
+  gameMusic = loadSound("SFX/TheLoomingBattle.OGG");
 }
 
 
@@ -67,7 +73,7 @@ class CheckerPiece {
     this.centerOfCellY = cellSize/2;
   }
 
-  draw(){
+  display(){
     let promotedSymbolSize = 2.5;
 
     stroke("black");
@@ -85,7 +91,7 @@ class CheckerPiece {
     }
   }
 
-  update(){
+  promoting(){
     if (this.team === "white"){
       if (!this.stayAsKing && this.y === WHITE_PROMOTE_ROW){
         promotePieceSFX.play();
@@ -125,6 +131,9 @@ function setup() {
 
   grid = generateGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
   generatePieces();
+
+  gameMusic.setVolume(0.2);
+  gameMusic.loop();
 }
 
 function draw() {
@@ -132,7 +141,7 @@ function draw() {
   background(220);
 
   displayGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
-  displayPieces();
+  managePieces();
   pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
 }
 
@@ -146,6 +155,19 @@ function displayGrid(cols, rows){
       }
       else if (grid[y][x] === BLACK_TILE){
         fill(134, 156, 102);
+        
+        // bug: affecting every piece, not just the one we clicked on
+        // if (selectedPieceID !== null){
+        //   if (selectedPieceID.x === grid[y][x] && selectedPieceID.y === grid[y]){
+        //     fill("red");
+        //   }
+        //   else{
+        //     fill(134, 156, 102);
+        //   }
+        // }
+        // else{
+        //   fill(134, 156, 102);
+        // }
       }
       square(x * cellSize + gridStartingX, y * cellSize + gridStartingY, cellSize);
     }
@@ -175,10 +197,10 @@ function generateGrid(cols, rows){
 
 
 
-function displayPieces(){
+function managePieces(){
   for (let i = pieces.length - 1; i >= 0; i--){
-    pieces[i].update();
-    pieces[i].draw();
+    pieces[i].promoting();
+    pieces[i].display();
   }
 }
 
@@ -368,6 +390,7 @@ function killPiece(_x, _y){
       pieces.splice(i, 1);
     }
   }
+  caputurePieceSFX.play();
 }
 
 function changePlayerTurn(){
@@ -377,5 +400,5 @@ function changePlayerTurn(){
   else if (playerTurn === "black"){
     playerTurn = "white";
   }
-  clickPieceSFX.play();
+  movePieceSFX.play();
 }
