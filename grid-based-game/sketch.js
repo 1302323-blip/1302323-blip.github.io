@@ -36,7 +36,7 @@ let pieces = [];
 let selectedPieceID = null;
 let playerTurn = "white";
 
-let gameState = "playing" // playing, finished
+let gameState = "playing"; // playing, finished
 let winner = null;
 
 // sound effects/assets
@@ -53,7 +53,7 @@ function preload(){
 
 
 
-class checkerPiece {
+class CheckerPiece {
   constructor(_x, _y, teamColour){
     this.x = _x;
     this.y = _y;
@@ -188,7 +188,7 @@ function generatePieces(){
   for (let y = 0; y <= 2; y++){
     for (let x = 0; x < GRID_DIMENSIONS; x++){
       if (grid[y][x] === BLACK_TILE){
-        pieces.push(new checkerPiece(x, y, "black"));
+        pieces.push(new CheckerPiece(x, y, "black"));
       }
     }
   }
@@ -197,7 +197,7 @@ function generatePieces(){
   for (let y = 5; y <= 7; y++){
     for (let x = 0; x < GRID_DIMENSIONS; x++){
       if (grid[y][x] === BLACK_TILE){
-        pieces.push(new checkerPiece(x, y, "white"));
+        pieces.push(new CheckerPiece(x, y, "white"));
       }
     }
   }
