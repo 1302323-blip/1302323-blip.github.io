@@ -1,9 +1,9 @@
-// Grid Based Game (chess/checkers)
+// Grid Based Game (checkers)
 // Steven Qiu
 // March 23, 2026
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// - added sound effects & music
 
 // final things i want to do to finish up the project
 // - chain kills #4
@@ -39,8 +39,6 @@ let gameState = "playing"; // playing, finished
 let winner = null;
 
 // sound effects/music
-// maybe no click piece sfx
-let clickPieceSFX;
 let movePieceSFX;
 let promotePieceSFX;
 let caputurePieceSFX;
@@ -49,6 +47,7 @@ let gameMusic;
 
 
 
+// intially loads sound effects & music
 function preload(){
   movePieceSFX = loadSound("SFX/sound_click.wav");
   caputurePieceSFX = loadSound("SFX/qubodup-crash.ogg");
@@ -91,6 +90,7 @@ class CheckerPiece {
     }
   }
 
+  // handles & checks if a piece is to be promoted, + keeps them promoted
   promoting(){
     if (this.team === "white"){
       if (!this.stayAsKing && this.y === WHITE_PROMOTE_ROW){
@@ -117,6 +117,7 @@ class CheckerPiece {
 
 
 
+// initially generates board & starts playing/looping music
 function setup() {
   createCanvas(windowWidth, windowHeight);
   if (width < height){
@@ -136,6 +137,7 @@ function setup() {
   gameMusic.loop();
 }
 
+// draws board, displays pieces, tracks the pieces' positions
 function draw() {
   noStroke();
   background(220);
@@ -143,6 +145,8 @@ function draw() {
   displayGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
   managePieces();
   pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
+
+  // stateMachine();
 }
 
 
@@ -174,7 +178,7 @@ function displayGrid(cols, rows){
   }
 }
 
-// generates checkers board (and that's it)
+// generates checkers board in array (and that's it)
 function generateGrid(cols, rows){
   let newGrid = [];
   let TileWasBlack = true;
@@ -197,6 +201,7 @@ function generateGrid(cols, rows){
 
 
 
+// performs functions in Pieces class
 function managePieces(){
   for (let i = pieces.length - 1; i >= 0; i--){
     pieces[i].promoting();
@@ -258,19 +263,20 @@ function trackingPiecesOnGrid(cols, rows){
 
 // allows you to selected a piece to then make it move
 function mousePressed(){
-  let x = Math.floor((mouseX - gridStartingX)/cellSize);
-  let y = Math.floor((mouseY - gridStartingY)/cellSize);
+  if (gameState === "playing"){
+    let x = Math.floor((mouseX - gridStartingX)/cellSize);
+    let y = Math.floor((mouseY - gridStartingY)/cellSize);
 
-  if (selectedPieceID === null){
-    mousePieceCheck(x, y);
+    if (selectedPieceID === null){
+      mousePieceCheck(x, y);
+    }
+    else if (selectedPieceID !== null){
+      mouseMovePiece(x, y, selectedPieceID);
+    }
   }
-  else if (selectedPieceID !== null){
-    mouseMovePiece(x, y, selectedPieceID);
-  }
-  console.log(selectedPieceID);
 }
 
-// checks if, when the mouse is clicked, a piece is there
+// checks if, when the mouse is clicked, a piece is there; selects that piece
 function mousePieceCheck(_x, _y){
   selectedPieceID = null;
 
@@ -287,11 +293,8 @@ function mousePieceCheck(_x, _y){
 // allows you to move the piece after clicking it
 // checks for collision (if you can move in that space), and if it can jump over an enemy piece
 function mouseMovePiece(_x, _y, piece){
-  console.log(piece);
   let mouseXDistanceFromPiece = _x - piece.x;
   let mouseYDistanceFromPiece = _y - piece.y;
-  console.log(mouseXDistanceFromPiece);
-  console.log(mouseYDistanceFromPiece);
 
   // is there location you want to move to on the grid?
   if (_x >= 0 && _x < GRID_DIMENSIONS && _y >= 0 && _y < GRID_DIMENSIONS){
@@ -386,12 +389,13 @@ function mouseMovePiece(_x, _y, piece){
 function killPiece(_x, _y){
   for (let i = pieces.length - 1; i >= 0; i--){
     if (pieces[i].x === _x && pieces[i].y === _y){
-      console.log(pieces[i]);
       pieces.splice(i, 1);
     }
   }
   caputurePieceSFX.play();
 }
+
+
 
 function changePlayerTurn(){
   if (playerTurn === "white"){
@@ -401,4 +405,50 @@ function changePlayerTurn(){
     playerTurn = "white";
   }
   movePieceSFX.play();
+}
+
+// bug: totalWhite/totalBlack is being set to 0 first, which is affect the rest of the code in this function
+function stateMachine(){
+  let totalWhite = 0;
+  let totalBlack = 0;
+  // track total amount of black/white pieces
+  if (gameState === "playing"){
+    for (let i in pieceGrid){
+      if (i === WHITE_IN_SPACE){
+        totalWhite += 1;
+      }
+      if (i === BLACK_IN_SPACE){
+        totalBlack += 1;
+      }
+    }
+    console.log(totalWhite);
+
+    // if there are no pieces, the game is ended
+    if (totalWhite <= 0){
+      gameState = "finished";
+      winner = "Black";
+    }
+    if (totalBlack <= 0){
+      gameState = "finished";
+      winner = "White";
+    }
+  }
+
+  if (gameState === "finished"){
+    stroke("white");
+    fill("black");
+    textSize(30);
+    text(winner + " Wins! Press R to restart.", width/2, height/2);
+  }
+}
+
+function keyPressed(){
+  if (key === "r" && gameState === "finished"){
+    reset();
+  }
+}
+
+function reset(){
+  gameState = "playing";
+  console.log("reset");
 }
