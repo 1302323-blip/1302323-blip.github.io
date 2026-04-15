@@ -36,19 +36,42 @@ class Walker {
   }
 }
 
-let zeph;
-let violet;
+let theWalkers = [];
 
-function setup() {
+function setup(){
   createCanvas(windowWidth, windowHeight);
-  zeph = new Walker(width/2, height/2, "red");
-  violet = new Walker(300, 500, "purple");
 }
 
-function draw() {
-  zeph.move();
-  violet.move();
-  
-  zeph.display();
-  violet.display();
+function draw(){
+  for (let walker of theWalkers){
+    walker.display();
+    walker.move();
+  }
 }
+
+function mousePressed(){
+  let newWalker = new Walker(mouseX, mouseY, "red");
+  newWalker.color = color(random(255), random(255), random(255));
+  theWalkers.push(newWalker);
+}
+
+
+
+// version with only 2 walkers
+
+// let zeph;
+// let violet;
+
+// function setup() {
+//   createCanvas(windowWidth, windowHeight);
+//   zeph = new Walker(width/2, height/2, "red");
+//   violet = new Walker(300, 500, "purple");
+// }
+
+// function draw() {
+//   zeph.move();
+//   violet.move();
+  
+//   zeph.display();
+//   violet.display();
+// }
