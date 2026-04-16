@@ -5,11 +5,6 @@
 // Extra for Experts:
 // - added sound effects & music
 
-// final things i want to do to finish up the project
-// - chain kills #4
-// - making it more clear whose turn it is #5
-// - win/lose conditions (also deal with 'draws') #3
-
 const GRID_DIMENSIONS = 8;
 const BLACK_TILE = 1;
 const WHITE_TILE = 0;
@@ -44,6 +39,8 @@ let promotePieceSFX;
 let caputurePieceSFX;
 
 let gameMusic;
+
+let customFontSize;
 
 
 
@@ -120,21 +117,7 @@ class CheckerPiece {
 // initially generates board & starts playing/looping music
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  if (width < height){
-    cellSize = width / GRID_DIMENSIONS; 
-  }
-  if (height < width){
-    cellSize = height / GRID_DIMENSIONS; 
-  }
-
-  gridStartingX = width / 2 - cellSize * (GRID_DIMENSIONS / 2);
-  gridStartingY = height / 2 - cellSize * (GRID_DIMENSIONS / 2);
-
-  grid = generateGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
-  generatePieces();
-
-  gameMusic.setVolume(0.2);
-  gameMusic.loop();
+  reset();
 }
 
 // draws board, displays pieces, tracks the pieces' positions
@@ -146,7 +129,7 @@ function draw() {
   managePieces();
   pieceGrid = trackingPiecesOnGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
 
-  // stateMachine();
+  stateMachine();
 }
 
 
@@ -159,19 +142,6 @@ function displayGrid(cols, rows){
       }
       else if (grid[y][x] === BLACK_TILE){
         fill(134, 156, 102);
-        
-        // bug: affecting every piece, not just the one we clicked on
-        // if (selectedPieceID !== null){
-        //   if (selectedPieceID.x === grid[y][x] && selectedPieceID.y === grid[y]){
-        //     fill("red");
-        //   }
-        //   else{
-        //     fill(134, 156, 102);
-        //   }
-        // }
-        // else{
-        //   fill(134, 156, 102);
-        // }
       }
       square(x * cellSize + gridStartingX, y * cellSize + gridStartingY, cellSize);
     }
@@ -211,6 +181,9 @@ function managePieces(){
 
 // initially generates pieces
 function generatePieces(){
+  // destroys existing pieces when game resets
+  pieces.splice(0, pieces.length);
+
   // generates black pieces
   for (let y = 0; y <= 2; y++){
     for (let x = 0; x < GRID_DIMENSIONS; x++){
@@ -407,48 +380,71 @@ function changePlayerTurn(){
   movePieceSFX.play();
 }
 
-// bug: totalWhite/totalBlack is being set to 0 first, which is affect the rest of the code in this function
 function stateMachine(){
-  let totalWhite = 0;
-  let totalBlack = 0;
+  let totalWhitePieces = 0;
+  let totalBlackPieces = 0;
   // track total amount of black/white pieces
   if (gameState === "playing"){
-    for (let i in pieceGrid){
-      if (i === WHITE_IN_SPACE){
-        totalWhite += 1;
-      }
-      if (i === BLACK_IN_SPACE){
-        totalBlack += 1;
+    // track total amount of black/white pieces
+    for (let y = 0; y < pieceGrid.length; y++){
+      for (let x = 0; x < pieceGrid[y].length; x++ ){
+        if (pieceGrid[y][x] === WHITE_IN_SPACE){
+            totalWhitePieces += 1;
+          }
+        if (pieceGrid[y][x] === BLACK_IN_SPACE){
+          totalBlackPieces += 1;
+        }
       }
     }
-    console.log(totalWhite);
 
-    // if there are no pieces, the game is ended
-    if (totalWhite <= 0){
+    // if there are no pieces for a team, the game is ended
+    if (totalWhitePieces <= 0){
       gameState = "finished";
       winner = "Black";
     }
-    if (totalBlack <= 0){
+    if (totalBlackPieces <= 0){
       gameState = "finished";
       winner = "White";
     }
   }
 
+  // if the game ends
   if (gameState === "finished"){
+    let winningText = winner + " Wins! Press R to restart.";
     stroke("white");
     fill("black");
-    textSize(30);
-    text(winner + " Wins! Press R to restart.", width/2, height/2);
+    textSize(customFontSize);
+    text(winningText, width/2 - (customFontSize/5 * winningText.length), height/2);
   }
 }
 
+// press 'r' to reset the game
 function keyPressed(){
   if (key === "r" && gameState === "finished"){
     reset();
   }
 }
 
+// resets the board & game
 function reset(){
+  if (width < height){
+    cellSize = width / GRID_DIMENSIONS; 
+  }
+  if (height < width){
+    cellSize = height / GRID_DIMENSIONS; 
+  }
+
+  gridStartingX = width / 2 - cellSize * (GRID_DIMENSIONS / 2);
+  gridStartingY = height / 2 - cellSize * (GRID_DIMENSIONS / 2);
+
+  grid = generateGrid(GRID_DIMENSIONS, GRID_DIMENSIONS);
+  generatePieces();
+
+  customFontSize = sqrt(width * height)/30;
+
+  gameMusic.stop();
+  gameMusic.setVolume(0.2);
+  gameMusic.loop();
+
   gameState = "playing";
-  console.log("reset");
 }
