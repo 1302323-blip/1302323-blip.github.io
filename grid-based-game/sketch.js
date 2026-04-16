@@ -389,8 +389,8 @@ function stateMachine(){
     for (let y = 0; y < pieceGrid.length; y++){
       for (let x = 0; x < pieceGrid[y].length; x++ ){
         if (pieceGrid[y][x] === WHITE_IN_SPACE){
-            totalWhitePieces += 1;
-          }
+          totalWhitePieces += 1;
+        }
         if (pieceGrid[y][x] === BLACK_IN_SPACE){
           totalBlackPieces += 1;
         }
@@ -414,7 +414,7 @@ function stateMachine(){
     stroke("white");
     fill("black");
     textSize(customFontSize);
-    text(winningText, width/2 - (customFontSize/5 * winningText.length), height/2);
+    text(winningText, width/2 - customFontSize/5 * winningText.length, height/2);
   }
 }
 
