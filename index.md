@@ -13,6 +13,7 @@
 - [Character in Grid](10-character-grid)
 - [Walker OOP Demo](12-walker-oop)
 - [Fireworks OOP Demo](13-fireworks)
+- [Ball Collision OOP](14-ball-oop)
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
