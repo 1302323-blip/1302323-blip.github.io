@@ -16,6 +16,7 @@
 - [Ball Collision OOP](14-ball-oop)
 - [Connected Nodes OOP](15-nodes-oop)
 - [Inheritance OOP](16-inheritance-oop)
+- [Collide 2D](17-collide-2d)
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
