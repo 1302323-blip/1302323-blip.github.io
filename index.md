@@ -18,6 +18,7 @@
 - [Inheritance OOP](16-inheritance-oop)
 - [Collide 2D](17-collide-2d)
 - [Fractal Circles](18-fractal-circles)
+- [Sierpinski Triangle](19-sierpinski-triangle)
 
 ## Assignments
 - [Interactive Scene - Pong](interactive-scene)
